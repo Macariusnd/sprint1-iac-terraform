@@ -32,3 +32,28 @@ output "private_route_table_id" {
   description = "ID of the private route table"
   value       = aws_route_table.private.id
 }
+
+output "instance_id" {
+  description = "ID of the EC2 web server instance"
+  value       = aws_instance.web_server.id
+}
+
+output "instance_public_ip" {
+  description = "Public IP address of the web server"
+  value       = aws_instance.web_server.public_ip
+}
+
+output "ssh_command" {
+  description = "Ready-to-run SSH command to connect to the instance"
+  value       = "ssh -i bridgepoint-key.pem ec2-user@${aws_instance.web_server.public_ip}"
+}
+
+output "http_url" {
+  description = "URL to test the web server in a browser"
+  value       = "http://${aws_instance.web_server.public_ip}"
+}
+
+output "security_group_id" {
+  description = "ID of the BridgePoint security group"
+  value       = aws_security_group.bridgepoint_sg.id
+}

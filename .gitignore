@@ -18,3 +18,8 @@ Thumbs.db
 # Editor directories
 .idea/
 .vscode/
+
+# SSH private keys - NEVER commit these
+*.pem
+bridgepoint-key
+bridgepoint-key.pub
