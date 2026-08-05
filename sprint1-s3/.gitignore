@@ -1,0 +1,9 @@
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+.DS_Store
+Thumbs.db
