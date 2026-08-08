@@ -1,0 +1,62 @@
+# ─────────────────────────────────────────────
+# S3 bucket — stores the Terraform state file
+# versioning keeps previous states recoverable
+# ─────────────────────────────────────────────
+resource "aws_s3_bucket" "tf_state" {
+  bucket        = var.state_bucket_name
+  force_destroy = true
+
+  tags = {
+    Name = var.state_bucket_name
+  }
+}
+
+resource "aws_s3_bucket_versioning" "tf_state" {
+  bucket = aws_s3_bucket.tf_state.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state" {
+  bucket = aws_s3_bucket.tf_state.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+    bucket_key_enabled = true
+  }
+}
+
+# State files must never be publicly accessible
+resource "aws_s3_bucket_public_access_block" "tf_state" {
+  bucket = aws_s3_bucket.tf_state.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# ─────────────────────────────────────────────
+# DynamoDB table — state locking
+# Prevents two engineers (or two pipelines)
+# from running terraform apply simultaneously.
+# LockID is the required partition key name.
+# ─────────────────────────────────────────────
+resource "aws_dynamodb_table" "tf_locks" {
+  name         = var.lock_table_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+
+  tags = {
+    Name = var.lock_table_name
+  }
+}
